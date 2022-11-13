@@ -63,20 +63,23 @@ nav{
   border: none;
   border-radius: 0.5rem;
 }
+main {
+  height: 100vh;
+  overflow-y: auto;
+}
 main h1{
   font-size: 30px;
   text-align: center;
   margin-bottom: 2rem;
 }
 .container {
-  max-width: 1360px;
   width: 100%;
   margin: 0 auto;
   padding: 0 30px;
 }
 .images {
   display: grid;
-  grid-gap: 2em;
+  grid-gap: 1em;
   grid-template-columns: repeat( auto-fill, minmax( 280px, 1fr ) );
 }
 .images img{
@@ -85,4 +88,5 @@ main h1{
   height: 100%;
   vertical-align: middle;
   object-fit: contain;
+  cursor: zoom-in;
 }

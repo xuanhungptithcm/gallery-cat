@@ -3,28 +3,60 @@ import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import logo from '../assets/logo/logo_transparent.png'
 import FsLightbox from 'fslightbox-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { getBackendURL, getS3Image } from '../helpers/config';
+import OptimizeImage from '../components/Image';
 const inter = Inter({
   weight: '400'
 })
 
 export default function Home(props) {
-  const [listThumbnail, setListThumbnail] =  useState(props?.images?.results || [])
+  const [listThumbnail, setListThumbnail] = useState(props?.images?.results || [])
   const [toggler, setToggler] = useState(false);
   const [sourceIndex, setSourceIndex] = useState(0);
+  const listInnerRef = useRef();
+  const [currPage, setCurrPage] = useState(1); // storing current page number
+  const [prevPage, setPrevPage] = useState(0); // storing prev page number
+  const [wasLastList, setWasLastList] = useState(false); // setting a flag to know the last list
+  const [lastList, setLastList] = useState(false);
 
-  const myLoader = ({ src }) => {
-    return `https://s3.us-east-2.amazonaws.com/daubap.tech/${src}`
-  }
+
+
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(
+        `${getBackendURL()}/images?limit=10&page=${currPage}`
+      );
+      const images = await response.json();
+      if (!images?.results?.length) {
+        setLastList(true);
+        return;
+      }
+      setPrevPage(currPage);
+      setListThumbnail([...listThumbnail, ...images?.results]);
+    };
+    if (!lastList && prevPage !== currPage) {
+      fetchData();
+    }
+  }, [currPage, lastList, prevPage, listThumbnail]);
 
   const listSourceImageLarge = useMemo(() => {
     return listThumbnail?.map((image) => image.fileLocation)
   }, [listThumbnail])
-  const handleSelectImage = (index) => {
-    setSourceIndex(index)
-  }
+
+  const onScroll = () => {
+    if (listInnerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
+      console.log(scrollTop + clientHeight, scrollHeight);
+      if (Math.ceil(scrollTop + clientHeight) >= scrollHeight) {
+        setCurrPage(currPage + 1);
+      }
+    }
+  };
   return (
-    <div className={inter.className}>
+    <div className={inter.className} >
       <Head>
         <title>Đậu bắp</title>
         <meta name="description" content="Hình ảnh của đậu bắp" />
@@ -35,14 +67,16 @@ export default function Home(props) {
           <Image src={logo} alt="logo"></Image>
         </div>
       </nav>
-      <main className="main">
+
+      <main className="main" ref={listInnerRef} onScroll={onScroll}>
         <div className="container">
-          <div className="images">
+          <div className="images"
+
+          >
             {listThumbnail?.map((image, index) => {
-              return (<Image key={image.id} loader={myLoader} src={image.name} alt={image?.name} width={image?.width} height={image.height} onClick={() => {
-                setSourceIndex(index);
-                setToggler(prev => !prev)
-              }}/>)
+              return (
+                <OptimizeImage key={image.id} image={image} index={index} setSourceIndex={setSourceIndex} setToggler={setToggler} />
+              )
             })}
           </div>
         </div>
@@ -61,8 +95,5 @@ export default function Home(props) {
 
 // This gets called on every request
 export async function getServerSideProps() {
-  const res = await fetch(`http://localhost:3001/v1/images?limit=10`)
-  const images = await res.json()
-
-  return { props: { images } }
+  return { props: { images: [] } }
 }
