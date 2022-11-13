@@ -27,7 +27,7 @@ export default function Home(props) {
     const fetchData = async () => {
       setIsLoading(true)
       const response = await fetch(
-        `${getBackendURL()}/images?limit=10&page=${currPage}`
+        `${getBackendURL()}/images?limit=20&page=${currPage}`
       );
       const images = await response.json();
 
