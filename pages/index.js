@@ -49,7 +49,6 @@ export default function Home(props) {
   const onScroll = () => {
     if (listInnerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-      console.log(scrollTop + clientHeight, scrollHeight);
       if (Math.ceil(scrollTop + clientHeight) >= scrollHeight) {
         setCurrPage(currPage + 1);
       }
