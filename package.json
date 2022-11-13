@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -p 8000",
+        "lint": "next lint"
   },
   "dependencies": {
     "@next/font": "^13.0.3",
