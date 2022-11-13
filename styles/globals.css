@@ -94,3 +94,12 @@ main h1{
   object-fit: cover;
   cursor: zoom-in;
 }
+
+@media screen and (max-width: 500px) {
+  .images {
+    height: calc(100vh - 300px)
+  }
+  main {
+    height: calc(100vh - 300px)
+  }
+}
