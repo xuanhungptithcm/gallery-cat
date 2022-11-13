@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
-import logo from '../assets/logo/logo_transparent.png'
+import logo from '../assets/logo/logo_new.png'
 import FsLightbox from 'fslightbox-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getBackendURL, getS3Image } from '../helpers/config';
@@ -19,10 +19,6 @@ export default function Home(props) {
   const [prevPage, setPrevPage] = useState(0); // storing prev page number
   const [wasLastList, setWasLastList] = useState(false); // setting a flag to know the last list
   const [lastList, setLastList] = useState(false);
-
-
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,10 +63,10 @@ export default function Home(props) {
         </div>
       </nav>
 
-      <main className="main" ref={listInnerRef} onScroll={onScroll}>
+      <main className="main" >
         <div className="container">
           <div className="images"
-
+            ref={listInnerRef} onScroll={onScroll}
           >
             {listThumbnail?.map((image, index) => {
               return (
