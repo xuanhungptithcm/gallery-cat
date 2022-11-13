@@ -6,6 +6,7 @@ import FsLightbox from 'fslightbox-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getBackendURL, getS3Image } from '../helpers/config';
 import OptimizeImage from '../components/Image';
+import useThrottle from '../hooks/useThrottle'
 const inter = Inter({
   weight: '400'
 })
@@ -17,39 +18,54 @@ export default function Home(props) {
   const listInnerRef = useRef();
   const [currPage, setCurrPage] = useState(1); // storing current page number
   const [prevPage, setPrevPage] = useState(0); // storing prev page number
-  const [wasLastList, setWasLastList] = useState(false); // setting a flag to know the last list
+  const [totalPages, setTotalPage] = useState(0); // storing prev page number
+  const [isLoading, setIsLoading] = useState(false); // setting a flag to know the last list
   const [lastList, setLastList] = useState(false);
+  const currPageThrottle = useThrottle(currPage, 250);
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true)
       const response = await fetch(
         `${getBackendURL()}/images?limit=10&page=${currPage}`
       );
       const images = await response.json();
+
       if (!images?.results?.length) {
         setLastList(true);
         return;
       }
+      setTotalPage(images.totalPages)
       setPrevPage(currPage);
       setListThumbnail([...listThumbnail, ...images?.results]);
+      setIsLoading(false)
     };
-    if (!lastList && prevPage !== currPage) {
+    if (!lastList && prevPage !== currPage && !isLoading) {
       fetchData();
     }
-  }, [currPage, lastList, prevPage, listThumbnail]);
+  }, [prevPage, lastList, listThumbnail, currPageThrottle]);
 
   const listSourceImageLarge = useMemo(() => {
     return listThumbnail?.map((image) => image.fileLocation)
   }, [listThumbnail])
 
+  const handleSetCurrentPage = () => {
+    setCurrPage(prev => {
+      if(prev + 1 <= totalPages) {
+        return prev+1
+      }
+      return prev
+    });
+  }
   const onScroll = () => {
     if (listInnerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = listInnerRef.current;
-      if (Math.ceil(scrollTop + clientHeight) >= scrollHeight) {
-        setCurrPage(currPage + 1);
+      if (Math.ceil(scrollTop + clientHeight) >= scrollHeight * 0.98) {
+        handleSetCurrentPage()
       }
     }
   };
+
   return (
     <div className={inter.className} >
       <Head>
