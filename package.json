@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 8000",
-        "lint": "next lint"
+    "lint": "next lint"
   },
   "dependencies": {
     "@next/font": "^13.0.3",
@@ -17,6 +17,7 @@
     "next": "^13.0.3",
     "react": "^18.2.0",
     "react-blurhash": "^0.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sharp": "^0.31.2"
   }
 }

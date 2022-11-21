@@ -14,6 +14,8 @@ const inter = Inter({
 export default function Home(props) {
   const [listThumbnail, setListThumbnail] = useState(props?.images?.results || [])
   const [toggler, setToggler] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [sourceIndex, setSourceIndex] = useState(0);
   const listInnerRef = useRef();
   const [currPage, setCurrPage] = useState(1); // storing current page number
@@ -22,7 +24,7 @@ export default function Home(props) {
   const [isLoading, setIsLoading] = useState(false); // setting a flag to know the last list
   const [lastList, setLastList] = useState(false);
   const currPageThrottle = useThrottle(currPage, 250);
-
+  const messageRef = useRef('');
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
@@ -51,8 +53,8 @@ export default function Home(props) {
 
   const handleSetCurrentPage = () => {
     setCurrPage(prev => {
-      if(prev + 1 <= totalPages) {
-        return prev+1
+      if (prev + 1 <= totalPages) {
+        return prev + 1
       }
       return prev
     });
@@ -65,6 +67,31 @@ export default function Home(props) {
       }
     }
   };
+
+  const handleSendMessage = async () => {
+    const message = messageRef?.current?.value;
+    if (isLoading2) return;
+    if (message.trim()) {
+      setIsLoading2(true)
+      await fetch(`${getBackendURL()}/images`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          content: message
+        })
+      }).then((result) => {
+        setIsSuccess(true);
+        setIsLoading2(false)
+        messageRef.current.value = ''
+      }).finally(() => {
+        setIsLoading2(false)
+      }).catch(() =>{
+        setIsSuccess(false);
+      })
+    }
+  }
 
   return (
     <div className={inter.className} >
@@ -80,6 +107,16 @@ export default function Home(props) {
       </nav>
 
       <main className="main" >
+        <div className="container form-message">
+          <div className="form">
+            <div class="text-field">
+              <label for="username2">😸😸 Cậu có thể để lại lời nhắn cho con mồm lèo tại đây</label>
+              <input autocomplete="off" type="text" id="username2" placeholder="Enter your message" ref={messageRef} />
+            </div>
+            {isSuccess ? <p style={{ margin: '1rem 0', color: '#28a745' }}>Lời nhắn đã gửi tới đậu bắp 😽😽😽😽😽</p> : ''}
+            <button disabled={isLoading2} class="button" onClick={handleSendMessage}>Gửi 😆</button>
+          </div>
+        </div>
         <div className="container">
           <div className="images"
             ref={listInnerRef} onScroll={onScroll}
